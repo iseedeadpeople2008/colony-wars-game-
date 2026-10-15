@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a698b178536b244597585599ca1a904, type: 3}
+  m_Name: TestPalette
+  m_EditorClassIdentifier: Assembly-CSharp::FactionPalette
+  neutral: {fileID: 11400000, guid: 46df9f91ad9cbc64c99ac9940d8c71b1, type: 2}
+  factions:
+  - {fileID: 11400000, guid: f96a14a540152cc46bfc54541b366508, type: 2}
+  - {fileID: 11400000, guid: 23ffcfeb453263449915ff0bc54529d5, type: 2}
