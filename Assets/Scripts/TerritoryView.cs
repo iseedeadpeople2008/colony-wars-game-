@@ -6,11 +6,14 @@ public class TerritoryView : MonoBehaviour
 {
     private const int AreaSortingOrder = -10;
     private const float MinAreaTint = 0.2f;
+
+    private Territory territory;
     private int lastShownCount = -1;
 
     private Material areaMaterial;
     private Color areaFrom;
     private Color areaTo;
+    private FactionPalette palette;
 
     [SerializeField] private SpriteRenderer body;
     [SerializeField] private TMP_Text countLabel;
@@ -18,23 +21,27 @@ public class TerritoryView : MonoBehaviour
     [SerializeField] private MeshRenderer areaRenderer;
     [SerializeField] private float radius = 0.5f;
 
-    private Territory territory;
-
     public void Bind(Territory territory, FactionPalette palette)
     {
         this.territory = territory;
         this.territory.CountChanged += OnCountChanged;
+        this.territory.OwnerChanged += OnOwnerChanged;
 
-        body.color = palette.GetDotColor(territory.OwnerId);
+        this.palette = palette;
+
         body.transform.localScale = Vector3.one * (radius * 2f);
-        BuildArea(palette);
+        BuildArea();
+        ApplyColors();
         Refresh();
     }
 
     private void OnDestroy()
     {
         if (territory != null)
+        {
             territory.CountChanged -= OnCountChanged;
+            territory.OwnerChanged -= OnOwnerChanged;
+        }
 
         if (areaFilter != null && areaFilter.sharedMesh != null)
             Destroy(areaFilter.sharedMesh);
@@ -48,6 +55,14 @@ public class TerritoryView : MonoBehaviour
         Refresh();
     }
 
+    private void ApplyColors()
+    {
+        body.color = palette.GetDotColor(territory.OwnerId);
+
+        areaTo = palette.GetAreaColor(territory.OwnerId);
+        areaFrom = Color.Lerp(Color.white, areaTo, MinAreaTint);
+    }
+
     private void Refresh()
     {
         if (lastShownCount != territory.Count)
@@ -59,7 +74,13 @@ public class TerritoryView : MonoBehaviour
         areaMaterial.color = Color.Lerp(areaFrom, areaTo, territory.FillRatio);
     }
 
-    private void BuildArea(FactionPalette palette)
+    private void OnOwnerChanged(Territory changed)
+    {
+        ApplyColors();
+        Refresh();
+    }
+
+    private void BuildArea()
     {
         IReadOnlyList<Vector2> points = territory.Shape.Points;
 
@@ -82,9 +103,6 @@ public class TerritoryView : MonoBehaviour
         areaFilter.sharedMesh = mesh;
 
         areaMaterial = areaRenderer.material;
-
-        areaTo = palette.GetAreaColor(territory.OwnerId);
-        areaFrom = Color.Lerp(Color.white, areaTo, MinAreaTint);
 
         areaRenderer.sortingOrder = AreaSortingOrder;
     }
