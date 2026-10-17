@@ -19,6 +19,7 @@ public class GameBootstrap : MonoBehaviour
     private void Start()
     {
         world = new GameWorld(battleSettings);
+        palette.Build();
         soldierLayer.Bind(world, palette);
 
         for (int i = 0; i < level.Territories.Count; i++)
@@ -28,12 +29,11 @@ public class GameBootstrap : MonoBehaviour
             view.Bind(territory, palette);
         }
 
-        playerController = new PlayerController(world, input, Faction.Player, hitRadius);
+        playerController = new PlayerController(world, input, hitRadius);
         playerController.TargetSelected += (from, to) =>
         {
             var command = new AttackCommand(Faction.Player, from.Id, to.Id);
             bool accepted = world.Execute(command);
-            Debug.Log($"Attack {from.Id} → {to.Id}: {(accepted ? "принято" : "отклонено")}");
         };
 
         playerController.GestureStarted += source =>

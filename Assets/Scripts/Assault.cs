@@ -1,4 +1,4 @@
-﻿public class Assault
+﻿public struct Assault
 {
     public int SourceId { get; }
     public int TargetId { get; }

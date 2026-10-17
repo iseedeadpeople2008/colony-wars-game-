@@ -38,10 +38,9 @@ public class GameWorld
 
     private void TickAssaults(float dt)
     {
-        Assault current = null;
         for (int i = assaults.Count - 1; i >= 0; i--)
         {
-            current = assaults[i];
+            Assault current = assaults[i];
             var source = GetTerritory(current.SourceId);
 
             if (source.OwnerId != current.FactionId ||
@@ -54,7 +53,10 @@ public class GameWorld
 
             current.Timer += dt;
             if (current.Timer < settings.LaunchInterval)
+            {
+                assaults[i] = current;
                 continue;
+            }
 
             current.Timer -= settings.LaunchInterval;
             int taken = source.Withdraw(Math.Min(settings.LaunchBatch, current.Remaining));
@@ -75,6 +77,8 @@ public class GameWorld
                     Direction = direction
                 });
             }
+
+            assaults[i] = current;
         }
     }
 

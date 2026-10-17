@@ -10,7 +10,8 @@ public class TerritoryView : MonoBehaviour
     private Territory territory;
     private int lastShownCount = -1;
 
-    private Material areaMaterial;
+    private static readonly int ColorProp = Shader.PropertyToID("_Color");
+    private MaterialPropertyBlock propBlock;
     private Color areaFrom;
     private Color areaTo;
     private FactionPalette palette;
@@ -29,6 +30,8 @@ public class TerritoryView : MonoBehaviour
 
         this.palette = palette;
 
+        propBlock = new MaterialPropertyBlock();
+
         body.transform.localScale = Vector3.one * (radius * 2f);
         BuildArea();
         ApplyColors();
@@ -45,9 +48,6 @@ public class TerritoryView : MonoBehaviour
 
         if (areaFilter != null && areaFilter.sharedMesh != null)
             Destroy(areaFilter.sharedMesh);
-
-        if (areaMaterial != null)
-            Destroy(areaMaterial);
     }
 
     private void OnCountChanged(Territory changed)
@@ -68,10 +68,12 @@ public class TerritoryView : MonoBehaviour
         if (lastShownCount != territory.Count)
         {
             lastShownCount = territory.Count;
-            countLabel.text = territory.Count.ToString();
+            countLabel.SetText("{0}", territory.Count);
         }
 
-        areaMaterial.color = Color.Lerp(areaFrom, areaTo, territory.FillRatio);
+        areaRenderer.GetPropertyBlock(propBlock);
+        propBlock.SetColor(ColorProp, Color.Lerp(areaFrom, areaTo, territory.FillRatio));
+        areaRenderer.SetPropertyBlock(propBlock);
     }
 
     private void OnOwnerChanged(Territory changed)
@@ -101,8 +103,6 @@ public class TerritoryView : MonoBehaviour
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
         areaFilter.sharedMesh = mesh;
-
-        areaMaterial = areaRenderer.material;
 
         areaRenderer.sortingOrder = AreaSortingOrder;
     }

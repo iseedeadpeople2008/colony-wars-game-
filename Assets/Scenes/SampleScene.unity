@@ -148,7 +148,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c703070766a344449ad1e34ea146e870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoldierLayerView
-  soldierPrefab: {fileID: 7674564979068764157, guid: 529b121bd21ed5d40ac3d2fbc7b35604, type: 3}
+  soldierMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  soldierMaterial: {fileID: 2100000, guid: 2954911980d4ae340a1880afa7f78031, type: 2}
+  soldierScale: 0.2
 --- !u!4 &48835958
 Transform:
   m_ObjectHideFlags: 0
