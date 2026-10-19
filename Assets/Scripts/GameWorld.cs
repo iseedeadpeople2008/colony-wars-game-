@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 public class GameWorld
@@ -12,6 +11,9 @@ public class GameWorld
 
     public IReadOnlyList<Territory> Territories => territories;
     public IReadOnlyList<Soldier> Soldiers => soldiers;
+
+    bool[] dead = new bool[1023];
+    private SpatialGrid grid;
 
     public GameWorld(BattleSettings settings)
     {
@@ -34,6 +36,72 @@ public class GameWorld
         TickAssaults(dt);
 
         MoveSoldiers(dt);
+        ResolveMidAirCollisions();
+        ResolveArrivals();
+    }
+
+    private void ResolveMidAirCollisions()
+    {
+        float collisionSqr = settings.SoldierCollisionRadius * settings.SoldierCollisionRadius;
+        Array.Clear(dead, 0, 1023);
+
+        EnsureGrid();
+        grid.Rebuild(soldiers);
+
+        for (int i = 0; i < soldiers.Count - 1; i++)
+        {
+            if (dead[i] == true)
+                continue;
+
+            int cx = grid.CellX(soldiers[i].Position);
+            int cy = grid.CellY(soldiers[i].Position);
+
+            bool stop = false;
+            for (int nx = cx - 1; nx <= cx + 1 && stop == false; nx++)
+            {
+                for (int ny = cy - 1; ny <= cy + 1 && stop == false; ny++)
+                {
+                    int j = grid.First(nx, ny);
+                    while (j != -1 && stop == false)
+                    {
+                        if (j != i &&
+                            dead[j] == false &&
+                            soldiers[i].FactionId != soldiers[j].FactionId &&
+                            (soldiers[i].Position - soldiers[j].Position).sqrMagnitude <= collisionSqr)
+                        {
+                            dead[i] = true;
+                            dead[j] = true;
+                            stop = true;
+                        }
+
+                        j = grid.Next(j);
+                    }
+                }
+            }
+        }
+
+        for (int i = soldiers.Count - 1; i >= 0; i--)
+        {
+            if (dead[i] == true)
+                RemoveSoldierAt(i);
+        }
+    }
+
+    private void ResolveArrivals()
+    {
+        float arrivalSqr = settings.ArrivalDistance * settings.ArrivalDistance;
+        Territory target = null;
+
+        for (int i = soldiers.Count - 1; i >= 0; i--)
+        {
+            target = GetTerritory(soldiers[i].TargetId);
+
+            if ((soldiers[i].Position - target.Position).sqrMagnitude <= arrivalSqr)
+            {
+                ResolveArrival(soldiers[i], target);
+                RemoveSoldierAt(i);
+            }
+        }
     }
 
     private void TickAssaults(float dt)
@@ -84,19 +152,12 @@ public class GameWorld
 
     private void MoveSoldiers(float dt)
     {
-        float arrivalSqr = settings.ArrivalDistance * settings.ArrivalDistance;
         float suctionSqr = settings.SuctionRadius * settings.SuctionRadius;
 
         for (int i = soldiers.Count - 1; i >= 0; i--)
         {
             Soldier current = soldiers[i];
             Territory target = GetTerritory(current.TargetId);
-
-            if (target == null)
-            {
-                RemoveSoldierAt(i);
-                continue;
-            }
 
             if (current.Phase == SoldierPhase.Marching)
             {
@@ -116,13 +177,7 @@ public class GameWorld
                 current.Position = Vector2.MoveTowards(current.Position, target.Position, 
                     settings.SoldierSpeed * settings.SuctionSpeedMultiplier * dt);
 
-            if ((target.Position - current.Position).sqrMagnitude <= arrivalSqr)
-            {
-                ResolveArrival(current, target);
-                RemoveSoldierAt(i);
-            }
-            else
-                soldiers[i] = current;
+            soldiers[i] = current;
         }
     }
 
@@ -182,11 +237,8 @@ public class GameWorld
             source.OwnerId != command.FactionId)
             return false;
 
-        for (int i = 0; i < assaults.Count; i++)
-        {
-            if (assaults[i].SourceId == command.SourceId)
-                return false;
-        }
+        if (HasActiveAssault(command.SourceId) == true)
+            return false;
 
         assaults.Add(new Assault
             (source.Id, target.Id, command.FactionId, source.Count, settings.LaunchInterval));
@@ -196,5 +248,68 @@ public class GameWorld
     private void ApplyFactionRules(Territory territory)
     {
         territory.SetRules(settings.GetRule(territory.OwnerId));
+    }
+    private void EnsureGrid()
+    {
+        if (grid != null)
+            return;
+
+        float minx = territories[0].Shape.Bounds.xMin;
+        float maxx = territories[0].Shape.Bounds.xMax;
+        float miny = territories[0].Shape.Bounds.yMin;
+        float maxy = territories[0].Shape.Bounds.yMax;
+        
+        for (int i = 1; i < territories.Count; i++)
+        {
+            minx = Mathf.Min(minx, territories[i].Shape.Bounds.xMin);
+            miny = Mathf.Min(miny, territories[i].Shape.Bounds.yMin);
+            maxx = Mathf.Max(maxx, territories[i].Shape.Bounds.xMax);
+            maxy = Mathf.Max(maxy, territories[i].Shape.Bounds.yMax);
+        }
+
+        float cellSize = Mathf.Max(settings.SoldierCollisionRadius * 2, 0.5f);
+        grid = new SpatialGrid(Rect.MinMaxRect(minx - 1, miny - 1, maxx + 1, maxy + 1), cellSize);
+    }
+
+    public bool HasActiveAssault(int sourceId)
+    {
+        for (int i = 0; i < assaults.Count; i++)
+        {
+            if (assaults[i].SourceId == sourceId)
+                return true;
+        }
+
+        return false;
+    }
+
+    public int CountIncoming(int targetId, int factionId)
+    {
+        // свои войска в пути к цели
+        return CountIncomingInternal(targetId, factionId, true);
+    }
+
+    public int CountIncomingHostile(int targetId, int factionId)
+    {
+        // войска всех остальных фракций в пути к цели
+        return CountIncomingInternal(targetId, factionId, false);
+    }
+
+    private int CountIncomingInternal(int targetId, int factionId, bool sameFaction)
+    {
+        int total = 0;
+
+        for (int i = 0; i < soldiers.Count; i++)
+        {
+            if (soldiers[i].TargetId == targetId && (soldiers[i].FactionId == factionId) == sameFaction)
+                total++;
+        }
+
+        for (int i = 0; i < assaults.Count; i++)
+        {
+            if (assaults[i].TargetId == targetId && (assaults[i].FactionId == factionId) == sameFaction)
+                total += assaults[i].Remaining;
+        }
+
+        return total;
     }
 }

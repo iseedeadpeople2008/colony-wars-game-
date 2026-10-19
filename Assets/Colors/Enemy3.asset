@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6c6239e8d553a346901b466413742eb, type: 3}
+  m_Name: Enemy3
+  m_EditorClassIdentifier: Assembly-CSharp::FactionColor
+  factionId: 4
+  dotColor: {r: 0.5188679, g: 0.06608224, b: 0.42069024, a: 1}
+  areaColor: {r: 0.7264151, g: 0.24328054, b: 0.6244692, a: 1}

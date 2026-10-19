@@ -5,7 +5,7 @@ using UnityEngine;
 public class TerritoryView : MonoBehaviour
 {
     private const int AreaSortingOrder = -10;
-    private const float MinAreaTint = 0.2f;
+    private const float MinAreaTint = 0.4f;
 
     private Territory territory;
     private int lastShownCount = -1;

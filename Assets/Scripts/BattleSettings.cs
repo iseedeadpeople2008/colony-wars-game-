@@ -12,6 +12,7 @@ public struct BattleSettings
     [SerializeField] private float lineSpacing;             
     [SerializeField] private float suctionRadius;           
     [SerializeField] private float suctionSpeedMultiplier;
+    [SerializeField] private float soldierCollisionRadius;
 
     public float SoldierSpeed => soldierSpeed;
     public float ArrivalDistance => arrivalDistance;
@@ -20,6 +21,7 @@ public struct BattleSettings
     public float LineSpacing => lineSpacing;
     public float SuctionRadius => suctionRadius;
     public float SuctionSpeedMultiplier => suctionSpeedMultiplier;
+    public float SoldierCollisionRadius => soldierCollisionRadius;
 
     public FactionRule GetRule(int factionId)
     {
@@ -29,6 +31,12 @@ public struct BattleSettings
                 return factionRules[i];
         }
 
-        return null;
+        return new FactionRule();
+    }
+
+    public BattleSettings WithRules(FactionRule[] rules)
+    {
+        factionRules = rules;
+        return this;
     }
 }

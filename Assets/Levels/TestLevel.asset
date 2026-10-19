@@ -15,31 +15,71 @@ MonoBehaviour:
   territories:
   - position: {x: 0, y: 4}
     ownerId: 0
-    startCount: 10
-    capacity: 10
-    productionPerSecond: 1
     outline:
     - {x: -4, y: 6}
     - {x: 4, y: 6}
-    - {x: 4, y: 1}
+    - {x: 2, y: 1}
     - {x: -4, y: 2}
   - position: {x: -2, y: -2}
     ownerId: 1
-    startCount: 15
-    capacity: 40
-    productionPerSecond: 3
     outline:
     - {x: -4, y: 2}
     - {x: 0, y: 1.5}
-    - {x: 0.5, y: -6}
+    - {x: 0.5, y: -4}
     - {x: -4, y: -6}
   - position: {x: 2, y: -2}
     ownerId: 2
-    startCount: 15
-    capacity: 40
-    productionPerSecond: 3
     outline:
-    - {x: 0, y: 1.5}
-    - {x: 4, y: 1}
+    - {x: 0, y: 1.35}
+    - {x: 2, y: 1}
     - {x: 4, y: -6}
-    - {x: 0.5, y: -6}
+    - {x: 0.5, y: -4}
+  - position: {x: 0, y: -6}
+    ownerId: 3
+    outline:
+    - {x: -4, y: -6}
+    - {x: 0.5, y: -4}
+    - {x: 4, y: -6}
+    - {x: 2, y: -8}
+  - position: {x: 5, y: 2}
+    ownerId: 0
+    outline:
+    - {x: 4, y: -6}
+    - {x: 2, y: 1}
+    - {x: 4, y: 6}
+    - {x: 6, y: 4}
+  bots:
+  - factionId: 2
+    profile:
+      thinkInterval: 2
+      minUnitsToAttack: 3
+      attackMargin: 2
+      distanceWeight: 1
+      neutralBonus: 3
+      defenseMargin: 2
+      defenseWeight: 0.8
+      scoreNoise: 15
+      skipChance: 0.4
+    customRule:
+      factionId: 2
+      startCount: 10
+      productionPerSecond: 2
+      capacity: 30
+      restoreDelay: 0.8
+  - factionId: 3
+    profile:
+      thinkInterval: 2
+      minUnitsToAttack: 3
+      attackMargin: 2
+      distanceWeight: 1
+      neutralBonus: 3
+      defenseMargin: 2
+      defenseWeight: 0.8
+      scoreNoise: 15
+      skipChance: 0.4
+    customRule:
+      factionId: 3
+      startCount: 10
+      productionPerSecond: 2
+      capacity: 30
+      restoreDelay: 0.8

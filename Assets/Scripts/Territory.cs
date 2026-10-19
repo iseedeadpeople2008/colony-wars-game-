@@ -21,12 +21,12 @@ public class Territory
     private float restoreDelay;
     private float timeSinceAction;
 
-    public Territory(int id, TerritoryData data)
+    public Territory(int id, TerritoryData data, int startCount)
     {
         Id = id;
         Position = data.Position;
         OwnerId = data.OwnerId;
-        accumulator = data.StartCount;
+        accumulator = startCount;
         Shape = new Polygon(data.Outline);
     }
 

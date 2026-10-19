@@ -316,8 +316,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d22c88db82290384fbdc792b4841f7b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFitter
-  mapSize: {x: 8, y: 12}
-  mapCenter: {x: 0, y: 0}
+  mapSize: {x: 9, y: 16}
+  mapCenter: {x: 1, y: 0}
   padding: 0.5
 --- !u!1 &619394800
 GameObject:
@@ -455,29 +455,46 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameBootstrap
   territoryPrefab: {fileID: 8213638940264241251, guid: 31f4c947a936af84bbfd0f6f6f0e8a68, type: 3}
   level: {fileID: 11400000, guid: 089327b7eb7ac6e4ebc199da3f340a64, type: 2}
+  save:
+    UpgradeStartUnits: 0
+    UpgradeProduction: 0
+    UpgradeCapacity: 0
+    StartUnitsPerLvl: 1
+    ProductionPerLvl: 0.1
+    CapacityPerLvl: 1
   palette: {fileID: 11400000, guid: 351558548fdbdf5469a0c08f2219be79, type: 2}
   dragLine: {fileID: 811431490}
   battleSettings:
     factionRules:
     - factionId: 0
+      startCount: 10
       productionPerSecond: 1
       capacity: 10
       restoreDelay: 2
     - factionId: 1
-      productionPerSecond: 3
-      capacity: 30
-      restoreDelay: 0.5
-    - factionId: 2
+      startCount: 10
       productionPerSecond: 2
       capacity: 30
-      restoreDelay: 0.5
-    soldierSpeed: 4
+      restoreDelay: 0.8
+    soldierSpeed: 2
     arrivalDistance: 0.05
     launchBatch: 5
     launchInterval: 0.3
     lineSpacing: 0.25
     suctionRadius: 0.7
-    suctionSpeedMultiplier: 3
+    suctionSpeedMultiplier: 2
+    soldierCollisionRadius: 0.2
+  aiProfile:
+    thinkInterval: 2
+    minUnitsToAttack: 5
+    attackMargin: 2
+    distanceWeight: 1
+    neutralBonus: 3
+    defenseMargin: 2
+    defenseWeight: 1.5
+    scoreNoise: 15
+    skipChance: 0.3
+  aiSeed: 1
   soldierLayer: {fileID: 48835957}
   input: {fileID: 1050806601}
   hitRadius: 0.5
